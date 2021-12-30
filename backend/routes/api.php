@@ -19,13 +19,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-//Since no need for authentication...
-Route::prefix('books')->group(function() {
-    Route::get('/details/{id}', [BooksController::class, 'index']);
-    Route::get('/list', [BooksController::class, 'list']);
-    Route::post('/store', [BooksController::class, 'store']);
-    Route::patch('/update/{id}', [BooksController::class, 'update']);
-});
+
+Route::resource('books', BooksController::class);
+
 
 // this is for the api endpoint demo, you should create a controller for your endpoints
 Route::get('/start', function () {

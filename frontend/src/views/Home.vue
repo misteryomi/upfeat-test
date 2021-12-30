@@ -1,5 +1,9 @@
 <template>
   <div class="home">
+    <h3 class="text-xl text-center leading-6 font-medium text-gray-900 mb-4">
+    Welcome to School Bookstore
+    </h3>
+
     <books-list />
   </div>
 </template>

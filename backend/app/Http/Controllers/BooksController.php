@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use App\Http\Resources\BookCollection;
 use App\Http\Resources\BookResource;
 use App\Models\Book;
@@ -10,8 +11,6 @@ use App\Http\Requests\BookRequest;
 
 class BooksController extends Controller
 {
-    //
-
     private $books;
 
     function __construct(Book $books)
@@ -19,23 +18,25 @@ class BooksController extends Controller
         $this->books = $books;
     }
 
-    public function index($id) {
-        $book = $this->books->find($id);
-
-        if($book) {
-            return response()->json(new BookResource($book));
-        } else {
-            return response()->json(['message' => 'Book not found'], 404);
-        }
-    }
-
-    public function list() {
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
         $books = $this->books->latest()->paginate(20);
 
-        return response()->json(new BookCollection($books));
+        return response()->json(['data' => new BookCollection($books), 'status' => true], 200);
     }
 
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(BookRequest $request) {
 
         $file_url = null;
@@ -52,17 +53,41 @@ class BooksController extends Controller
         $book = $this->books->create($data);
         
 
-        return new BookResource($book);
+        return response()->json(['data' => new BookResource($book), 'status' => true], 200);
+    }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $book = $this->books->find($id);
+
+        if($book) {
+            return response()->json(['data' => new BookResource($book), 'status' => true], 200);
+        } else {
+            return response()->json(['message' => 'Book not found', 'status' => false], 404);
+        }
     }
 
 
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function update(BookRequest $request, $id) {
+
 
         $book = $this->books->find($id);
 
         if(!$book) {
-            return response()->json(['message' => 'Book record does not exist'], 404);
+            return response()->json(['message' => 'Book record does not exist', 'status' => false], 404);
         }
 
         $file_url = null;
@@ -77,21 +102,35 @@ class BooksController extends Controller
 
         $book->update($data);
         
-        return new BookResource($book);
+        return response()->json(['data' => new BookResource($book), 'status' => true], 200);
 
     }
 
-    
-    public function delete() {
 
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $book = $this->books->find($id);
+
+        if(!$book) {
+            return response()->json(['message' => 'Book record does not exist', 'status' => false], 404);
+        }
+
+        $book->delete();
+
+        return response()->json(['message' => 'Book deleted successfully', 'status' => true], 200);
     }
 
 
     private function handleUpload($file) {
 
-            $file_path = $file->store('uploads', 'public');
+        $file_path = $file->store('uploads', 'public');
 
-            return env('APP_URL') . '/storage/' . $file_path;
-    }
-
+        return env('APP_URL') . '/storage/' . $file_path;
+    }    
 }

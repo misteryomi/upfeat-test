@@ -4,7 +4,7 @@
     <book-details-skeleton v-if="loading" />
 
     <div v-else class="max-w-2xl mx-auto py-16 px-4 sm:py-24 sm:px-6 lg:max-w-7xl lg:px-8 lg:grid lg:grid-cols-2 lg:gap-x-8">
-      <!-- Product details -->
+      <!-- Book details -->
       <div class="lg:max-w-lg lg:self-end">
         <nav aria-label="Breadcrumb">
           <ol role="list" class="flex items-center space-x-2">
@@ -31,21 +31,34 @@
 
           <div class="flex items-center">
             <p class="text-lg text-gray-900 sm:text-xl">{{ book.currency }} {{ book.amount }}</p>
+          </div>
 
+          <div class="flex items-center mt-2">
+            <p class="text-gray-700 text-sm font-bold uppercase">ISBN: {{ book.isbn }}</p>
           </div>
 
           <div class="mt-4 space-y-6">
             <p class="text-base text-gray-500">{{ book.description }}</p>
           </div>
 
-          <div class="mt-6 flex items-center">
-            <CheckIcon class="flex-shrink-0 w-5 h-5 text-green-500" aria-hidden="true" />
-            <p class="ml-2 text-sm text-gray-500">In stock and ready to ship</p>
+          <div class="mt-6 items-center">
+            <p class="text-sm text-gray-500 flex">
+              <router-link :to="`/book/edit/${book.id}`" class="mr-4 flex">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 " fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>              
+              Edit Details</router-link>
+              <a @click.prevent="handleDelete" class="flex">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="red">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>              
+              Delete Book</a>
+            </p>
           </div>
         </section>
       </div>
 
-      <!-- Product image -->
+      <!-- Book image -->
       <div class="mt-10 lg:mt-0 lg:col-start-2 lg:row-span-2 lg:self-center">
         <div class="aspect-w-1 aspect-h-1 rounded-lg overflow-hidden">
           <img :src="book.image_url" :alt="book.title" class="w-full h-full object-center object-cover" />
@@ -56,9 +69,8 @@
 </template>
 
 <script>
-import { CheckIcon, QuestionMarkCircleIcon, StarIcon } from '@heroicons/vue/solid'
+import { PencilIcon, TrashIcon } from '@heroicons/vue/solid'
 import { RadioGroup, RadioGroupDescription, RadioGroupLabel, RadioGroupOption } from '@headlessui/vue'
-import { ShieldCheckIcon } from '@heroicons/vue/outline'
 import { useRoute } from "vue-router";
 
 import api from '../utils/constants';
@@ -70,10 +82,8 @@ export default {
     RadioGroupDescription,
     RadioGroupLabel,
     RadioGroupOption,
-    CheckIcon,
-    QuestionMarkCircleIcon,
-    ShieldCheckIcon,
-    StarIcon,
+    TrashIcon,
+    PencilIcon,
     BookDetailsSkeleton,
   },
   setup() {
@@ -99,12 +109,41 @@ export default {
     async getBookDetails() {
         let id = this.$route.params.id;
         
-        const response = await fetch(`${api.baseURL}books/details/${id}`);
+        const response = await fetch(`${api.baseURL}books/${id}`);
         const data = await response.json();
 
-        this.book = data;
+        let _data = data.data;
+
+        if(_data && data.status) {
+          this.book = _data;
+        }
 
         this.loading = false;
+    },
+
+    async handleDelete() {
+        let id = this.$route.params.id;
+        
+        const response = await fetch(`${api.baseURL}books/${id}`, {method: 'DELETE'});
+        const data = await response.json();
+
+        let _data = data.data
+        
+        if(_data && data.status) {
+            this.$toast.open({
+                    message: 'Book deleted successfully!',
+                    type: 'success'
+                });
+
+            //Redirect to books
+        } else {
+            this.$toast.open({
+                    message: data.message,
+                    type: 'error'
+                });          
+        }
+        this.$router.push({ path: `/books`})
+
     }
   }
 }

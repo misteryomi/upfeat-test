@@ -12,17 +12,16 @@
             </DisclosureButton>
           </div>
           <div class="flex-shrink-0 flex items-center">
-            <img class="block lg:hidden h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-mark-indigo-600.svg" alt="Workflow" />
-            <img class="hidden lg:block h-8 w-auto" src="https://tailwindui.com/img/logos/workflow-logo-indigo-600-mark-gray-800-text.svg" alt="Workflow" />
+            <h3>BookStore</h3>
           </div>
           <div class="hidden md:ml-6 md:flex md:space-x-8">
-            <router-link to="/" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+            <router-link to="/" :class=" checkCurrentRoute('/') + 'text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'">
               Home
             </router-link>
-            <router-link to="/about" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+            <router-link to="/about" :class=" checkCurrentRoute('/about') + 'text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'">
               About
             </router-link>
-            <router-link to="/books"  class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+            <router-link to="/books"  :class=" checkCurrentRoute('/books') + ' text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium'">
               Books
             </router-link>
           </div>
@@ -96,6 +95,8 @@
 import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { BellIcon, MenuIcon, XIcon } from '@heroicons/vue/outline'
 import { PlusSmIcon } from '@heroicons/vue/solid'
+import { useRouter } from 'vue-router'
+
 
 export default {
   components: {
@@ -111,5 +112,14 @@ export default {
     PlusSmIcon,
     XIcon,
   },
+  methods: {
+    checkCurrentRoute(path) {
+
+      const router = useRouter()
+      let currentRoute = router.currentRoute.value;
+
+      return currentRoute.path == path ? 'border-indigo-500 ' : 'border-transparent ';
+    }
+  }
 }
 </script>

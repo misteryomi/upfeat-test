@@ -25,7 +25,7 @@
               Book Title
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-               <input v-model="title" name="title" type="text" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
+               <input name="title" type="text" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
             </div>
           </div>
 
@@ -34,7 +34,7 @@
               Book Description
             </label>
             <div class="mt-1">
-              <textarea id="description" name="description" rows="3" v-model="description" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"></textarea>
+              <textarea id="description" name="description" rows="3" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"></textarea>
             </div>
           </div>
 
@@ -43,7 +43,7 @@
               Author Name
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-               <input v-model="author" type="text" name="author" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
+               <input type="text" name="author" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
             </div>
           </div>
 
@@ -52,7 +52,7 @@
               Amount
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-              <input type="number" name="amount" id="amount" v-model="amount" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
+              <input type="number" name="amount" id="amount" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
             </div>
           </div>
 
@@ -61,7 +61,7 @@
               ISBN
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-               <input v-model="isbn" type="text" name="isbn" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
+               <input type="text" name="isbn" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
             </div>
           </div>
 
@@ -70,7 +70,7 @@
               Book Cover Image
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-                <input type="file" name="cover_image" id="cover_image" @change="handleImageUpload"  />
+                <input type="file" name="cover_image" id="cover_image" />
             </div>
           </div>
 
@@ -81,9 +81,6 @@
 
     <div class="pt-5">
       <div class="flex justify-end">
-        <button type="button" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Cancel
-        </button>
         <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           Save
         </button>
@@ -108,12 +105,6 @@ export default {
             errors: null,
             errorMessage: null,
             loading: false,
-            title: null,
-            isbn: null,
-            amount: 0,
-            author: null,
-            description: '',
-            cover_image: null,            
         }
     },
     methods: {
@@ -127,17 +118,15 @@ export default {
             this.errorMessage = null;
             
             //Get form data
-    		var _formData = new FormData(document.querySelector('#newBookForm'));    
+    		    var _formData = new FormData(document.querySelector('#newBookForm'));    
 
             //Submit form data
-            const response = await fetch(`${api.baseURL}books/store`, {
+            const response = await fetch(`${api.baseURL}books`, {
                     method: 'POST',
                     body: _formData
                 });
 
             const data = await response.json();
-
-            console.log({data});
 
             if(data.errors) {
                 this.errors = data.errors
@@ -161,15 +150,6 @@ export default {
             this.loading = false;
             
         },
-
-        handleCheck(e) {
-            console.log({e})
-        }
     },
-    watch: {
-        description: function(val) {
-            console.log({val})
-        }
-    }
 }
 </script>

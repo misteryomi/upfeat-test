@@ -7,7 +7,7 @@
     </h3>
 </div>
 
-  <form class="space-y-8 divide-y divide-gray-200" enctype="multipart/form-data" method="post" action="#" @submit="submitBookData" id="editBookForm">
+  <form class="space-y-8 divide-y divide-gray-200" enctype="multipart/form-data" action="#" @submit="submitBookData" id="editBookForm">
     <div class="space-y-8 divide-y divide-gray-200">
       <div>
 
@@ -25,7 +25,7 @@
               Book Title
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-               <input :value="book.title" name="title" type="text" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
+               <input v-model="book.title" name="title" type="text" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
             </div>
           </div>
 
@@ -34,7 +34,7 @@
               Book Description
             </label>
             <div class="mt-1">
-              <textarea id="description" name="description" rows="3" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400">{{ book.description }}</textarea>
+              <textarea id="description" v-model="book.description" name="description" rows="3" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"></textarea>
             </div>
           </div>
 
@@ -43,7 +43,7 @@
               Author Name
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-               <input :value="book.author" type="text" name="author" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
+               <input v-model="book.author" type="text" name="author" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
             </div>
           </div>
 
@@ -52,7 +52,7 @@
               Amount
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-              <input type="text" name="amount" id="amount" :value="book.amount" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
+              <input type="text" name="amount" id="amount" v-model="book.amount" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
             </div>
           </div>
 
@@ -61,7 +61,7 @@
               ISBN
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-               <input :value="book.isbn" type="text" name="isbn" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
+               <input v-model="book.isbn" type="text" name="isbn" class="flex-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full min-w-0 rounded-md sm:text-sm bg-white border-gray-400"/>
             </div>
           </div>
 
@@ -70,7 +70,7 @@
               Book Cover Image
             </label>
             <div class="mt-1 flex rounded-md shadow-sm">
-                <input type="file" name="cover_image" id="cover_image" @change="handleImageUpload"  />
+                <input type="file" name="cover_image" id="cover_image" @change="handleFileUpload"/>
             </div>
           </div>
 
@@ -81,9 +81,6 @@
 
     <div class="pt-5">
       <div class="flex justify-end">
-        <button type="button" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Cancel
-        </button>
         <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           Save
         </button>
@@ -109,21 +106,32 @@ export default {
             errors: null,
             errorMessage: null,
             loading: false,
-            book: {}   
+            title: null,
+            isbn: null,
+            amount: 0,
+            author: null,
+            description: null,
+            cover_image: null,      
+            book: {}    
         }
     },
     mounted() {
         this.getBookDetails();
     },
     methods: {
-
+        handleFileUpload(e) {
+          console.log(e.target.files);
+          this.cover_image = e.target.files[0];
+        },
         async getBookDetails() {
             let id = this.$route.params.id;
             
-            const response = await fetch(`${api.baseURL}books/details/${id}`);
+            const response = await fetch(`${api.baseURL}books/${id}`);
             const data = await response.json();
 
-            this.book = data;
+            if(data.status) { 
+                 this.book = data.data;
+            }
 
             this.loading = false;
         },
@@ -137,13 +145,15 @@ export default {
             this.errors = null;
             this.errorMessage = null;
             
-            //Get form data
-    		var _formData = new FormData(document.querySelector('#editBookForm'));    
+            const { title, author, description, amount, isbn } = this.book
 
+            const payload = { title, author, description, amount, isbn };
+
+     
             //Submit form data
-            const response = await fetch(`${api.baseURL}books/update/${id}`, {
+            const response = await fetch(`${api.baseURL}books/${id}`, {
                     method: 'PATCH',
-                    body: _formData
+                    body: JSON.stringify(payload)
                 });
 
             const data = await response.json();
@@ -171,14 +181,6 @@ export default {
             
         },
 
-        handleCheck(e) {
-            console.log({e})
-        }
     },
-    watch: {
-        description: function(val) {
-            console.log({val})
-        }
-    }
 }
 </script>
