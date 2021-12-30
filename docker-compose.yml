@@ -1,0 +1,54 @@
+version: "3"
+
+networks:
+  default:
+    name: auto
+
+volumes:
+  mysql:
+    driver: local
+
+services:
+  nginx:
+    image: "bitnami/nginx:1.21"
+    depends_on:
+      - backend
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./conf/nginx/test.conf:/opt/bitnami/nginx/conf/server_blocks/test.conf
+      - ./backend/public:/app/public:ro
+
+  database:
+    image: "bitnami/mysql:5.7"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - MYSQL_ROOT_USER=root
+      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=
+      - MYSQL_DATABASE=laravel
+    #      - BITNAMI_DEBUG=true
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql:/bitnami/mysql/data
+
+  backend:
+    image: "bitnami/php-fpm:8.0"
+    depends_on:
+      - database
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    image: "bitnami/node:12"
+    depends_on:
+      - nginx
+      - backend
+    ports:
+      - "8888:8888"
+#    command: tail -F anything
+    command: "sh -c 'npm install && npm run dev'"
+    volumes:
+      - ./frontend:/app
